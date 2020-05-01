@@ -1,3 +1,8 @@
+var tool = 0;
+// 0: pen, 1: eraser
+
+var mouseDown = false;
+
 var header1 =
   "<!DOCTYPE html>\n" +
   "<html>\n" +
@@ -23,6 +28,9 @@ var footer = "</div>\n\n" +
   "</body>\n" +
   "</html>\n";
 
+var penLink;
+var eraserLink;
+
 window.onload =function() {
   // console.log("ready");
   var menu = d3.select("body")
@@ -37,6 +45,27 @@ window.onload =function() {
       .attr("href", "#")
       .text("export")
       .on("click", save_export);
+  menu.append("span").text(" | ");
+  penLink = menu.append("a")
+      .attr("href", "#")
+      .text("pen")
+      .on("click", function() {
+        tool = 0;
+        penLink.attr("style", "color:red");
+        eraserLink.attr("style", "");
+        d3.event.preventDefault();
+      });
+  penLink.attr("style", "color:red");
+  menu.append("span").text(" | ");
+  eraserLink = menu.append("a")
+      .attr("href", "#")
+      .text("eraser")
+      .on("click", function() {
+        tool = 1;
+        eraserLink.attr("style", "color:red");
+        penLink.attr("style", "");
+        d3.event.preventDefault();
+      });
 };
 
 var line = d3.line()
@@ -47,9 +76,13 @@ var svg = d3.selectAll("#container svg")
     .call(d3.drag()
         .container(function() { return this; })
         .subject(function() { var p = [d3.event.x, d3.event.y]; return [p, p]; })
-        .on("start", dragstarted));
+        .on("start", dragstarted)
+        .on("end", dragended));
+
+d3.selectAll("#container path").on("mouseover", overpath);
 
 function save() {
+  d3.event.preventDefault();
   var data = header1 + "Note" + header2 +
     document.getElementById('container').innerHTML +
     footer;
@@ -70,6 +103,7 @@ function save() {
 }
 
 function save_export() {
+  d3.event.preventDefault();
   var data = header1 + "Note" + header2 +
     document.getElementById('container').innerHTML +
     "</body>\n</html>\n";
@@ -89,10 +123,20 @@ function save_export() {
   }
 }
 
+function overpath() {
+  if (mouseDown && tool == 1) {
+    //console.log('hit');
+    this.parentNode.removeChild(this);
+  }
+}
+
 function dragstarted() {
+  mouseDown = true;
+  if (tool != 0) return true;
   var first = 0;
   var d = d3.event.subject;
   var active = svg.append("path").datum(d);
+  active.on("mouseover", overpath);
   var x0, y0;
 
   d3.event.on("drag", function() {
@@ -116,4 +160,8 @@ function dragstarted() {
       active.attr("d", function (d) { return line(d).replace(/(\.[0-9])[0-9]+/g, "$1"); });
     }
   });
+}
+
+function dragended() {
+  mouseDown = false;
 }
