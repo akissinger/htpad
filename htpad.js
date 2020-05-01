@@ -11,6 +11,7 @@ var header2 = "</title>\n" +
   "    path { fill: none; stroke: #000; stroke-width: 3px; stroke-linejoin: round; stroke-linecap: round; }\n" +
   "    #menu { position: fixed; top: 0; width: 100%; background-color: #eee; padding: 0.3em; font-size: 1.5em; border: 1px solid black; }\n" +
   "    #menu a { font-weight: bold; text-decoration: none; color: blue; }\n" +
+  "    #grid line { stroke: #ddd; stroke-width: 1px; }\n" +
   "  </style>" +
   "</head>\n" +
   "<body>\n\n" +
@@ -20,23 +21,29 @@ var footer = "</div>\n\n" +
   "<script src=\"http://d3js.org/d3.v4.min.js\"></script>\n" +
   "<script src=\"htpad.js\"></script>\n" +
   "</body>\n" +
-  "</html>";
+  "</html>\n";
 
 window.onload =function() {
-  console.log("ready");
-  var a = d3.select("body")
-    .insert("div", ":first-child")
-    .attr("id", "menu")
-    .append("a")
-    .attr("href", "#")
-    .text("save")
-    .on("click", save);
+  // console.log("ready");
+  var menu = d3.select("body")
+      .insert("div", ":first-child")
+      .attr("id", "menu");
+  menu.append("a")
+      .attr("href", "#")
+      .text("save")
+      .on("click", save);
+  menu.append("span").text(" | ");
+  menu.append("a")
+      .attr("href", "#")
+      .text("export")
+      .on("click", save_export);
 };
 
 var line = d3.line()
+    //.curve(d3.curveLinear);
     .curve(d3.curveBasis);
 
-var svg = d3.select("svg")
+var svg = d3.selectAll("#container svg")
     .call(d3.drag()
         .container(function() { return this; })
         .subject(function() { var p = [d3.event.x, d3.event.y]; return [p, p]; })
@@ -46,20 +53,40 @@ function save() {
   var data = header1 + "Note" + header2 +
     document.getElementById('container').innerHTML +
     footer;
-  console.log(data);
-  // var filename = "note.html";
-  // var blob = new Blob([data], {type: 'text/html'});
-  // if(window.navigator.msSaveOrOpenBlob) {
-  //   window.navigator.msSaveBlob(blob, filename);
-  // }
-  // else{
-  //   var elem = window.document.createElement('a');
-  //   elem.href = window.URL.createObjectURL(blob);
-  //   elem.download = filename;        
-  //   document.body.appendChild(elem);
-  //   elem.click();        
-  //   document.body.removeChild(elem);
-  // }
+  // console.log(data);
+  var filename = "note_1.html";
+  var blob = new Blob([data], {type: 'text/html'});
+  if(window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveBlob(blob, filename);
+  }
+  else{
+    var elem = window.document.createElement('a');
+    elem.href = window.URL.createObjectURL(blob);
+    elem.download = filename;        
+    document.body.appendChild(elem);
+    elem.click();        
+    document.body.removeChild(elem);
+  }
+}
+
+function save_export() {
+  var data = header1 + "Note" + header2 +
+    document.getElementById('container').innerHTML +
+    "</body>\n</html>\n";
+  // console.log(data);
+  var filename = "note_1.html";
+  var blob = new Blob([data], {type: 'text/html'});
+  if(window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveBlob(blob, filename);
+  }
+  else{
+    var elem = window.document.createElement('a');
+    elem.href = window.URL.createObjectURL(blob);
+    elem.download = filename;        
+    document.body.appendChild(elem);
+    elem.click();        
+    document.body.removeChild(elem);
+  }
 }
 
 function dragstarted() {
@@ -83,7 +110,10 @@ function dragstarted() {
       } else {
         d[d.length - 1] = [x1, y1];
       }
-      active.attr("d", line);
+      
+      //active.attr("d", line);
+      //s.replace(/(\.[0-9])[0-9]+/g, "$1");
+      active.attr("d", function (d) { return line(d).replace(/(\.[0-9])[0-9]+/g, "$1"); });
     }
   });
 }
