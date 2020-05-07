@@ -29,7 +29,7 @@ var saveLink = d3.select("#menu #save");
 var exportLink = d3.select("#menu #export");
 var penLink = d3.select("#menu #pen");
 var eraserLink = d3.select("#menu #eraser");
-var selectLink = d3.select("#menu #select");
+// var selectLink = d3.select("#menu #select");
 
 var drag = d3.drag()
     .container(function() { return this; })
@@ -42,7 +42,7 @@ function setTool(t) {
   tool = t;
   penLink.attr("style", (t == 0) ? "color:red" : "");
   eraserLink.attr("style", (t == 1) ? "color:red" : "");
-  selectLink.attr("style", (t == 2) ? "color:red" : "");
+  // selectLink.attr("style", (t == 2) ? "color:red" : "");
 
   if (t == 0 || t == 1) {
     svg.call(drag);
@@ -70,73 +70,8 @@ window.onload =function() {
 
   penLink.on("mousedown", function() { setTool(0); });
   eraserLink.on("mousedown", function() { setTool(1); });
-  selectLink.on("mousedown", function() { setTool(2); });
+  // selectLink.on("mousedown", function() { setTool(2); });
   setTool(0);
-  // console.log("ready");
-  // var menu = d3.select("body")
-  //     .insert("div", ":first-child")
-  //     .attr("id", "menu");
-  // menu.append("a")
-  //     .attr("href", "#")
-  //     .text("save")
-  //     .on("mousedown", function() { save(true); })
-  //     .on("click", hom);
-  // menu.append("span").text(" | ");
-  // menu.append("a")
-  //     .attr("href", "#")
-  //     .text("export")
-  //     .on("mousedown", function() { save(false); })
-  //     .on("click", hom);
-  // menu.append("span").text(" | ");
-  // penLink = menu.append("a")
-  //     .attr("href", "#")
-  //     .text("pen")
-  //     .on("mousedown", function() {
-  //       tool = 0;
-  //       penLink.attr("style", "color:red");
-  //       eraserLink.attr("style", "");
-  //       selectLink.attr("style", "");
-
-  //       svg.call(drag);
-  //       d3.event.preventDefault();
-  //     })
-  //     .on("click", hom);
-  // penLink.attr("style", "color:red");
-  // menu.append("span").text(" | ");
-  // eraserLink = menu.append("a")
-  //     .attr("href", "#")
-  //     .text("eraser")
-  //     .on("mousedown", function() {
-  //       tool = 1;
-  //       eraserLink.attr("style", "color:red");
-  //       penLink.attr("style", "");
-  //       selectLink.attr("style", "");
-
-  //       svg.call(drag);
-  //       d3.event.preventDefault();
-  //     })
-  //     .on("click", hom);
-  // menu.append("span").text(" | ");
-  // selectLink = menu.append("a")
-  //     .attr("href", "#")
-  //     .text("select")
-  //     .on("mousedown", function() {
-  //       tool = 2;
-  //       lasso = d3.lasso()
-  //         .closePathSelect(true)
-  //         .closePathDistance(1000)
-  //         .items(d3.selectAll("#container path"))
-  //         .targetArea(svg)
-  //         .on("start",lasso_start)
-  //         .on("draw",lasso_draw)
-  //         .on("end",lasso_end);
-  //       svg.call(lasso);
-  //       selectLink.attr("style", "color:red");
-  //       penLink.attr("style", "");
-  //       eraserLink.attr("style", "");
-  //       d3.event.preventDefault();
-  //     })
-  //     .on("click", hom);
 };
 
 var line = d3.line().curve(d3.curveBasis);
