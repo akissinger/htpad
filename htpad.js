@@ -1,12 +1,9 @@
-var tool = 0;
-// 0: pen, 1: eraser
-
 var mouseDown = false;
 
 var header1 =
   "<!DOCTYPE html>\n" +
   "<html>\n" +
-  "  <head>\n" +
+  "<head>\n" +
   "  <meta charset=\"utf-8\" />\n" +
   "  <title>";
 
@@ -14,78 +11,151 @@ var header2 = "</title>\n" +
   "  <style type=\"text/css\">\n" +
   "    html, body { margin: 0; }\n" +
   "    path { fill: none; stroke: #000; stroke-width: 3px; stroke-linejoin: round; stroke-linecap: round; }\n" +
-  "    #menu { position: fixed; top: 0; width: 100%; background-color: #eee; padding: 0.3em; font-size: 1.5em; border: 1px solid black; }\n" +
-  "    #menu a { font-weight: bold; text-decoration: none; color: blue; }\n" +
-  "    #grid line { stroke: #ddd; stroke-width: 1px; }\n" +
-  "  </style>" +
+  "  </style>\n" +
   "</head>\n" +
   "<body>\n\n" +
   "<div id=\"container\">";
 
-var footer = "</div>\n\n" +
-  "<script src=\"http://d3js.org/d3.v4.min.js\"></script>\n" +
-  "<script src=\"htpad.js\"></script>\n" +
-  "</body>\n" +
-  "</html>\n";
+// var footer = "</div>\n\n" +
+//   "<script src=\"http://d3js.org/d3.v4.min.js\"></script>\n" +
+//   "<script src=\"htpad.js\"></script>\n" +
+//   "</body>\n" +
+//   "</html>\n";
 
-var penLink;
-var eraserLink;
+var tool = 0;
+// 0: pen, 1: eraser, 2: select
+
+var saveLink = d3.select("#menu #save");
+var exportLink = d3.select("#menu #export");
+var penLink = d3.select("#menu #pen");
+var eraserLink = d3.select("#menu #eraser");
+var selectLink = d3.select("#menu #select");
+
+var drag = d3.drag()
+    .container(function() { return this; })
+    .subject(function() { var p = [d3.event.x, d3.event.y]; return [p, p]; })
+    .on("start", dragstarted)
+    .on("end", dragended);
+var lasso;
+
+function setTool(t) {
+  tool = t;
+  penLink.attr("style", (t == 0) ? "color:red" : "");
+  eraserLink.attr("style", (t == 1) ? "color:red" : "");
+  selectLink.attr("style", (t == 2) ? "color:red" : "");
+
+  if (t == 0 || t == 1) {
+    svg.call(drag);
+  } else {
+    lasso = d3.lasso()
+      .closePathSelect(true)
+      .closePathDistance(1000)
+      .items(d3.selectAll("#container path"))
+      .targetArea(svg)
+      .on("start",lasso_start)
+      .on("draw",lasso_draw)
+      .on("end",lasso_end);
+    svg.call(lasso);
+  }
+
+  if (d3.event) d3.event.preventDefault();
+}
 
 window.onload =function() {
+  d3.selectAll("#menu a")
+    .on("click", function() { d3.event.preventDefault(); });
+
+  d3.select("#menu #save").on("mousedown", function() { save(true); });
+  d3.select("#menu #export").on("mousedown", function() { save(false); });
+
+  penLink.on("mousedown", function() { setTool(0); });
+  eraserLink.on("mousedown", function() { setTool(1); });
+  selectLink.on("mousedown", function() { setTool(2); });
+  setTool(0);
   // console.log("ready");
-  var menu = d3.select("body")
-      .insert("div", ":first-child")
-      .attr("id", "menu");
-  menu.append("a")
-      .attr("href", "#")
-      .text("save")
-      .on("click", save);
-  menu.append("span").text(" | ");
-  menu.append("a")
-      .attr("href", "#")
-      .text("export")
-      .on("click", save_export);
-  menu.append("span").text(" | ");
-  penLink = menu.append("a")
-      .attr("href", "#")
-      .text("pen")
-      .on("click", function() {
-        tool = 0;
-        penLink.attr("style", "color:red");
-        eraserLink.attr("style", "");
-        d3.event.preventDefault();
-      });
-  penLink.attr("style", "color:red");
-  menu.append("span").text(" | ");
-  eraserLink = menu.append("a")
-      .attr("href", "#")
-      .text("eraser")
-      .on("click", function() {
-        tool = 1;
-        eraserLink.attr("style", "color:red");
-        penLink.attr("style", "");
-        d3.event.preventDefault();
-      });
+  // var menu = d3.select("body")
+  //     .insert("div", ":first-child")
+  //     .attr("id", "menu");
+  // menu.append("a")
+  //     .attr("href", "#")
+  //     .text("save")
+  //     .on("mousedown", function() { save(true); })
+  //     .on("click", hom);
+  // menu.append("span").text(" | ");
+  // menu.append("a")
+  //     .attr("href", "#")
+  //     .text("export")
+  //     .on("mousedown", function() { save(false); })
+  //     .on("click", hom);
+  // menu.append("span").text(" | ");
+  // penLink = menu.append("a")
+  //     .attr("href", "#")
+  //     .text("pen")
+  //     .on("mousedown", function() {
+  //       tool = 0;
+  //       penLink.attr("style", "color:red");
+  //       eraserLink.attr("style", "");
+  //       selectLink.attr("style", "");
+
+  //       svg.call(drag);
+  //       d3.event.preventDefault();
+  //     })
+  //     .on("click", hom);
+  // penLink.attr("style", "color:red");
+  // menu.append("span").text(" | ");
+  // eraserLink = menu.append("a")
+  //     .attr("href", "#")
+  //     .text("eraser")
+  //     .on("mousedown", function() {
+  //       tool = 1;
+  //       eraserLink.attr("style", "color:red");
+  //       penLink.attr("style", "");
+  //       selectLink.attr("style", "");
+
+  //       svg.call(drag);
+  //       d3.event.preventDefault();
+  //     })
+  //     .on("click", hom);
+  // menu.append("span").text(" | ");
+  // selectLink = menu.append("a")
+  //     .attr("href", "#")
+  //     .text("select")
+  //     .on("mousedown", function() {
+  //       tool = 2;
+  //       lasso = d3.lasso()
+  //         .closePathSelect(true)
+  //         .closePathDistance(1000)
+  //         .items(d3.selectAll("#container path"))
+  //         .targetArea(svg)
+  //         .on("start",lasso_start)
+  //         .on("draw",lasso_draw)
+  //         .on("end",lasso_end);
+  //       svg.call(lasso);
+  //       selectLink.attr("style", "color:red");
+  //       penLink.attr("style", "");
+  //       eraserLink.attr("style", "");
+  //       d3.event.preventDefault();
+  //     })
+  //     .on("click", hom);
 };
 
-var line = d3.line()
-    //.curve(d3.curveLinear);
-    .curve(d3.curveBasis);
+var line = d3.line().curve(d3.curveBasis);
 
-var svg = d3.selectAll("#container svg")
-    .call(d3.drag()
-        .container(function() { return this; })
-        .subject(function() { var p = [d3.event.x, d3.event.y]; return [p, p]; })
-        .on("start", dragstarted)
-        .on("end", dragended));
+var svg = d3.selectAll("#container svg").call(drag);
 
 d3.selectAll("#container path").on("mouseover", overpath);
 
-function save() {
+function save(interactive) {
   d3.event.preventDefault();
-  var data = header1 + "Note" + header2 +
-    document.getElementById('container').innerHTML +
-    footer;
+  var data;
+
+  if (interactive) {
+    data = document.documentElement.outerHTML;
+  } else {
+    data = header1 + "Note" + header2 +
+           document.getElementById('container').innerHTML +
+           "</body>\n</html>\n";
+  }
   // console.log(data);
   var filename = "note_1.html";
   var blob = new Blob([data], {type: 'text/html'});
@@ -102,26 +172,6 @@ function save() {
   }
 }
 
-function save_export() {
-  d3.event.preventDefault();
-  var data = header1 + "Note" + header2 +
-    document.getElementById('container').innerHTML +
-    "</body>\n</html>\n";
-  // console.log(data);
-  var filename = "note_1.html";
-  var blob = new Blob([data], {type: 'text/html'});
-  if(window.navigator.msSaveOrOpenBlob) {
-    window.navigator.msSaveBlob(blob, filename);
-  }
-  else{
-    var elem = window.document.createElement('a');
-    elem.href = window.URL.createObjectURL(blob);
-    elem.download = filename;        
-    document.body.appendChild(elem);
-    elem.click();        
-    document.body.removeChild(elem);
-  }
-}
 
 function overpath() {
   if (mouseDown && tool == 1) {
@@ -140,8 +190,8 @@ function dragstarted() {
   var x0, y0;
 
   d3.event.on("drag", function() {
-    var x1 = Math.round(d3.event.x),
-        y1 = Math.round(d3.event.y),
+    var x1 = d3.event.x,
+        y1 = d3.event.y,
         dx = x1 - x0,
         dy = y1 - y0;
     if (first < 1) {
@@ -154,9 +204,7 @@ function dragstarted() {
       } else {
         d[d.length - 1] = [x1, y1];
       }
-      
-      //active.attr("d", line);
-      //s.replace(/(\.[0-9])[0-9]+/g, "$1");
+
       active.attr("d", function (d) { return line(d).replace(/(\.[0-9])[0-9]+/g, "$1"); });
     }
   });
@@ -165,3 +213,39 @@ function dragstarted() {
 function dragended() {
   mouseDown = false;
 }
+
+
+// Lasso functions
+var lasso_start = function() {
+    lasso.items()
+        // .attr("r",3.5) // reset size
+        .classed("not_possible",true)
+        .classed("selected",false);
+};
+
+var lasso_draw = function() {
+
+    // Style the possible dots
+    lasso.possibleItems()
+        .classed("not_possible",false)
+        .classed("possible",true);
+
+    // Style the not possible dot
+    lasso.notPossibleItems()
+        .classed("not_possible",true)
+        .classed("possible",false);
+};
+
+var lasso_end = function() {
+    // Reset the color of all dots
+    lasso.items()
+        .classed("not_possible",false)
+        .classed("possible",false);
+
+    // Style the selected dots
+    lasso.selectedItems()
+        .classed("selected",true);
+
+
+};
+
