@@ -8,7 +8,7 @@ Download blank.html. Open it in a browser. You are done.
 
 # Usage
 
-All of the data is stored within the HTML file, and the entire htpad 'program' is in the form of Javascript files included from the internet. Hence, you can use htpad on any computer with a reasonable browser (tested on Chrome and Firefox) and an internet connection.
+All of the data is stored within the HTML file, and the entire htpad 'program' is in the form of Javascript files included from the web via [jsDelivr](https://www.jsdelivr.com). Hence, you can use htpad on any computer with a reasonable browser (tested on Chrome and Firefox) and an internet connection.
 
 When you open `blank.html`, you will see a collection of tool icons in the upper-left corner. From left-to-right, these are: 'Save As', 'Export', 'Pen', and 'Eraser'. 'Export' is similar, except it produces a read-only note that doesn't require internet access.
 
