@@ -123,7 +123,7 @@ function dragstarted() {
   if (tool != 0) return true;
   var first = 0;
   var d = d3.event.subject;
-  var active = svg.append("path").datum(d);
+  var active = svg.select(".notes").append("path").datum(d);
   active.on("mouseover", overpath);
   var x0, y0;
 
