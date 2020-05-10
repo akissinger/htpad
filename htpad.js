@@ -25,8 +25,6 @@ var header2 = "</title>\n" +
 var tool = 0;
 // 0: pen, 1: eraser, 2: select
 
-var saveLink = d3.select("#menu #save");
-var exportLink = d3.select("#menu #export");
 var penLink = d3.select("#menu #pen");
 var eraserLink = d3.select("#menu #eraser");
 // var selectLink = d3.select("#menu #select");
@@ -65,8 +63,9 @@ window.onload =function() {
   d3.selectAll("#menu a")
     .on("click", function() { d3.event.preventDefault(); });
 
-  d3.select("#menu #save").on("mousedown", function() { save(true); });
-  d3.select("#menu #export").on("mousedown", function() { save(false); });
+  d3.select("#menu #save").on("mousedown", function() { save(0); });
+  d3.select("#menu #export").on("mousedown", function() { save(1); });
+  d3.select("#menu #export-svg").on("mousedown", function() { save(2); });
 
   penLink.on("mousedown", function() { setTool(0); });
   eraserLink.on("mousedown", function() { setTool(1); });
@@ -80,24 +79,28 @@ var svg = d3.selectAll("#container svg").call(drag);
 
 d3.selectAll("#container path").on("mouseover", overpath);
 
-function save(interactive) {
+function save(mode) {
   d3.event.preventDefault();
   var data;
+  var filename;
 
-  if (interactive) {
+  if (mode == 0) { // Save As
+    filename = "note_1.html";
     data = document.documentElement.outerHTML;
-  } else {
+  } else if (mode == 1) { // Export HTML
+    filename = "note_1_export.html";
     data = header1 + "Note" + header2 +
            document.getElementById('container').innerHTML +
            "</body>\n</html>\n";
+  } else { // Export SVG
+    filename = "note_1.svg";
+    data = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+           document.getElementById('page1').outerHTML;
   }
-  // console.log(data);
-  var filename = "note_1.html";
   var blob = new Blob([data], {type: 'text/html'});
   if(window.navigator.msSaveOrOpenBlob) {
     window.navigator.msSaveBlob(blob, filename);
-  }
-  else{
+  } else{
     var elem = window.document.createElement('a');
     elem.href = window.URL.createObjectURL(blob);
     elem.download = filename;        
