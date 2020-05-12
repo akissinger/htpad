@@ -4,7 +4,7 @@ It seems like most of the handwritten note software out there is either over-com
 
 # Installation
 
-Download [blank.html](https://github.com/akissinger/htpad/releases/download/1.0/blank.html). Open it in a browser. You are done.
+Download [blank.html](https://github.com/akissinger/htpad/releases/download/1.1/blank.html). Open it in a browser. You are done.
 
 # Usage
 
