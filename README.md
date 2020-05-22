@@ -33,4 +33,6 @@ Pro tip: use the 'Developer Tools' in your browser to change stuff on the fly. T
 
 You may wish to occasionally get a new version of `blank.html` to get new features or bugfixes. You can 'upgrade' old notes by pasting the (rather large) contents of the &lt;svg&gt; tag from an old note into the new template. I may automate this process at some point.
 
+# On Windows
 
+Pen input seems to register as touch input by default on Windows. If there is a way to override this behaviour, I'd love to hear about it. In the mean time, a quick fix for Wacom tablets is to disable 'Use Windows Ink' in the official Wacom Tablet Properties app.
