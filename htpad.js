@@ -10,7 +10,6 @@ var header1 =
 var header2 = "</title>\n" +
   "  <style type=\"text/css\">\n" +
   "    html, body { margin: 0; }\n" +
-  "    path { fill: none; stroke: #000; stroke-width: 3px; stroke-linejoin: round; stroke-linecap: round; }\n" +
   "  </style>\n" +
   "</head>\n" +
   "<body>\n\n" +
